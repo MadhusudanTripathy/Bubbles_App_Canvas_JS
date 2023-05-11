@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Circles with Arrows</title>
+</head>
+
+<body style="height: 100vh;width: 100%;padding: 0;margin: 0; display: flex;flex-direction: column; justify-content: center;align-items: center;">
+    <h1>
+        Bubbles App
+    </h1>
+    <div >
+    
+    <canvas id="myCanvas" width="650" height="300" style="border: 5px solid black;"></canvas>
+    <button onclick="resetCanvas()" style="
+    position: relative;left: -5rem; bottom: 1rem;
+    ">Reset</button>
+    </div>
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // Define the circles and their properties
+        var circles = [
+            { x: 50, y: 50, r: 20, color: "red", hit: false },
+            { x: 50, y: 100, r: 20, color: "blue", hit: false },
+            { x: 50, y: 150, r: 20, color: "green", hit: false },
+            { x: 50, y: 200, r: 20, color: "orange", hit: false }
+        ];
+
+        // Define the arrows and their properties
+        var arrows = [
+            { x: 500, y: 50, dx: 50, dy: 0 },
+            { x: 500, y: 100, dx: 50, dy: 0 },
+            { x: 500, y: 150, dx: 50, dy: 0 },
+            { x: 500, y: 200, dx: 50, dy: 0 }
+        ];
+        function drawArrowhead(ctx, x, y, angle) {
+        // Determine the points of the triangle
+        var arrowSize = 20;
+        var x1 = x + arrowSize * Math.cos(angle - Math.PI / 6);
+        var y1 = y + arrowSize * Math.sin(angle - Math.PI / 6);
+        var x2 = x + arrowSize * Math.cos(angle + Math.PI / 6);
+        var y2 = y + arrowSize * Math.sin(angle + Math.PI / 6);
+
+        // Draw the triangle
+        ctx.beginPath();
+        ctx.moveTo(x-10, y);
+        ctx.lineTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.closePath();
+        ctx.fillStyle = "black";
+        ctx.fill();
+        }
+
+
+        // Draw the circles and arrows
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the circles and arrows
+            for (var i = 0; i < circles.length; i++) {
+                ctx.fillStyle = circles[i].color;
+                ctx.beginPath();
+                ctx.arc(circles[i].x, circles[i].y, circles[i].r, 0, 2 * Math.PI);
+                ctx.strokeStyle = "#000000";
+                ctx.stroke();
+                ctx.fill();
+                
+                
+
+
+                var arrow = arrows[i];
+                ctx.beginPath();
+                ctx.moveTo(arrow.x+100, arrow.y);
+                ctx.lineTo(arrow.x + arrow.dx, arrow.y + arrow.dy);
+                ctx.lineWidth = 6;
+                ctx.strokeStyle = "black";
+                ctx.stroke();
+                drawArrowhead(ctx, arrow.x + arrow.dx, arrow.y + arrow.dy, Math.atan2(arrow.dy, arrow.dx));
+            }
+
+
+            
+
+            // Move the arrows towards their corresponding circles if clicked
+            for (var i = 0; i < circles.length; i++) {
+                if (circles[i].hit) {
+                    var arrow = arrows[i];
+                    var dx = circles[i].x - arrow.x;
+                    var dy = circles[i].y - arrow.y;
+                    var distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance > circles[i].r) {
+                        arrow.x -= arrow.dx+2;
+                    } else {
+                        circles[i].hit = false;
+                        circles[i].color = "gray";
+                    }
+                }
+            }
+            window.requestAnimationFrame(draw);
+        }
+
+        // Handle mouse click events
+        canvas.addEventListener("click", function (event) {
+            var x = event.offsetX;
+            var y = event.offsetY;
+            for (var i = 0; i < circles.length; i++) {
+                var circle = circles[i];
+                var dx = x - circle.x;
+                var dy = y - circle.y;
+                var distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance <= circle.r && !circle.hit) {
+                    circle.hit = true;
+                }
+            }
+        });
+
+        // Reset the canvas to its initial state
+        function resetCanvas() {
+            location.reload();
+        }
+
+        // Start the animation loop
+        draw();
+    </script>
+</body>
+
+</html>
